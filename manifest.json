@@ -1,0 +1,16 @@
+{
+  "name": "My Chef",
+  "short_name": "My Chef",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F4FBF6",
+  "theme_color": "#1B4332",
+  "description": "Your Nigerian meal planning chef",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>\ud83d\udc68\u200d\ud83c\udf73</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
