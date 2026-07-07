@@ -2145,6 +2145,19 @@ const SPICE_INGREDIENTS = new Set([
 
     const PRICE_NOTE = 'Lagos market estimates, June 2026.';
 
+    const SNACK_ALLOWED_IDS = [
+      'M01', 'M02', 'M03', 'M04', 'M05', 'M10',
+      'X12', 'X13', 'X15', 'X16', 'X19', 'X20',
+      'P01', 'P02', 'P03',
+      'S02', 'S06',
+      'GR01', 'GR02', 'GR03', 'GR04', 'GR06',
+      'K01', 'N05',
+      'M06', 'M07', 'M08', 'M09',
+      'X07', 'X08', 'X09', 'X10', 'X11',
+      'J04', 'Q14', 'R04',
+      'I04', 'I07', 'R01'
+    ];
+
     /* ===========================================
        RECIPE DATABASE (populated in next session)
     =========================================== */
@@ -14447,18 +14460,6 @@ function generateHowToEat(recipe, profile) {
                  (recipe.name && (recipe.name.toLowerCase().indexOf('akara') !== -1 || recipe.name.toLowerCase().indexOf('moi moi') !== -1));
         }
         if (slot === 'snack') {
-          var SNACK_ALLOWED_IDS = [
-            'M01', 'M02', 'M03', 'M04', 'M05', 'M10',
-            'X12', 'X13', 'X15', 'X16', 'X19', 'X20',
-            'P01', 'P02', 'P03',
-            'S02', 'S06',
-            'GR01', 'GR02', 'GR03', 'GR04', 'GR06',
-            'K01', 'N05',
-            'M06', 'M07', 'M08', 'M09',
-            'X07', 'X08', 'X09', 'X10', 'X11',
-            'J04', 'Q14', 'R04',
-            'I04', 'I07', 'R01'
-          ];
           return SNACK_ALLOWED_IDS.indexOf(recipe.id) !== -1;
         }
         return true;
@@ -15300,7 +15301,11 @@ function generateHowToEat(recipe, profile) {
       /* Home-screen mode: empty ingredients */
       if (!selectedIngredients || selectedIngredients.length === 0) {
         var byMealType = mealType
-          ? DB.filter(function (r) { return r.types && r.types.indexOf(mealType) !== -1 && !isExcluded(r); })
+          ? DB.filter(function (r) {
+              if (!(r.types && r.types.indexOf(mealType) !== -1 && !isExcluded(r))) return false;
+              if (mealType === 'snack') return SNACK_ALLOWED_IDS.indexOf(r.id) !== -1;
+              return true;
+            })
           : DB.filter(function (r) { return !isExcluded(r); });
         if (byMealType.length === 0) byMealType = DB.filter(function (r) { return !isExcluded(r); });
         var shuffled = byMealType.slice().sort(function () { return Math.random() - 0.5; });
@@ -15313,6 +15318,7 @@ function generateHowToEat(recipe, profile) {
             var hfr = DB[hfi];
             if (!hfr.fridge) continue;
             if (homeFridgeItems.indexOf(hfr.fridge) === -1) continue;
+            if (mealType === 'snack' && SNACK_ALLOWED_IDS.indexOf(hfr.id) === -1) continue;
             homeFridgeMatches.push({
               recipe: hfr,
               presentReq: [],
@@ -15506,7 +15512,11 @@ function generateHowToEat(recipe, profile) {
       var homeCards = fridgeHomeMatches.concat(pantryHomeMatches);
 
       if (homeCards.length === 0) {
-        homeCards = DB.filter(function (r) { return r.types && r.types.indexOf(mealType) !== -1; }).slice(0, 3).map(function (r) {
+        homeCards = DB.filter(function (r) {
+          if (!(r.types && r.types.indexOf(mealType) !== -1)) return false;
+          if (mealType === 'snack') return SNACK_ALLOWED_IDS.indexOf(r.id) !== -1;
+          return true;
+        }).slice(0, 3).map(function (r) {
           return { recipe: r, presentReq: [], missingReq: [], score: 0, exceedsTime: false, minutesNeeded: null };
         });
       }
